@@ -10,7 +10,7 @@ module.exports = {
     )`);
   },
 
-  async down (queryInterface, Sequelize) {
+  async down (queryInterface) {
     queryInterface.sequelize.query(`drop table if exists hotels`);
   }
 };
