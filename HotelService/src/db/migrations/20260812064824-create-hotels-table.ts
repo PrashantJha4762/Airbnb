@@ -1,5 +1,7 @@
+import type { QueryInterface } from "sequelize";
+
 module.exports = {
-  async up (queryInterface) {
+  async up (queryInterface:QueryInterface) {
     queryInterface.sequelize.query(`Create table if not exists hotels(
       id int primary key auto_increment,
       name varchar(255) not null,
@@ -10,7 +12,7 @@ module.exports = {
     )`);
   },
 
-  async down (queryInterface) {
+  async down (queryInterface:QueryInterface) {
     queryInterface.sequelize.query(`drop table if exists hotels`);
   }
 };
