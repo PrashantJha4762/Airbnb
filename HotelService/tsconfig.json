@@ -10,7 +10,7 @@
     "module": "commonjs",
     "moduleResolution": "bundler",
     "target": "esnext",
-    "types": ["node"],
+    "types": [],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -36,7 +36,7 @@
     // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
