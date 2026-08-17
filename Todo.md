@@ -8,6 +8,7 @@ generate the npx sequelize-cli migration:generate --name create-hotels-table and
 now run the migration using npx sequelize-cli db:migrate and check if the table is created in the database
 
 Lectrure 20: Writing apis with sequelize and express.js
+
 Add a coloumn named rating by generating a new migrration
 Add a model for your databse in the models folder . use the website for documentation on how to create a model using sequelize cli
 after creating the class there is something called as init method which is used to initialize the model with the database connection and define the attributes of the model. Make sure to define the attributes according to the columns in your hotels table.
@@ -16,3 +17,5 @@ After this use sequelize.authenticate() method in server.ts file and create a ho
 After this first make a dto layer and then repository layer. Since we will be using the transfer object which will initiate a network request from the clinet , we will make the dto layer.In the repository layer use async functions
 Now write the service layer and then controllers and then router and then validation layer
 And implement getAllhandler it's a part of hw
+
+Lecture 21:Tombstone in database
