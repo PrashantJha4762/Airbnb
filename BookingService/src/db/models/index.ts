@@ -1,6 +1,6 @@
 import { Model, type CreationOptional, type InferAttributes, type InferCreationAttributes } from "sequelize";
 import { sequelize } from "./sequelize";
-enum BookingStatus{
+export enum BookingStatus{
   PENDING='PENDING',
   CONFIRMED='CONFIRMED',
   CANCELLED='CANCELLED'
