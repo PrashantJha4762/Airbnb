@@ -7,7 +7,7 @@ in index.ts in the config folder just like you made for serverconfig now made th
 generate the npx sequelize-cli migration:generate --name create-hotels-table and write the query using sequelize query interface to create the hotels table with the following columns id, name, description, location, price, createdAt and updatedAt
 now run the migration using npx sequelize-cli db:migrate and check if the table is created in the database
 
-Lectrure 20: Writing apis with sequelize and express.js
+Lecture 20: Writing apis with sequelize and express.js
 
 Add a coloumn named rating by generating a new migrration
 Add a model for your databse in the models folder . use the website for documentation on how to create a model using sequelize cli
@@ -19,3 +19,9 @@ Now write the service layer and then controllers and then router and then valida
 And implement getAllhandler it's a part of hw
 
 Lecture 21:Tombstone in database
+
+Install a library http status codes(search on web) 
+create a migration to add a column named Deleted_At in the hotels table and set its default value to null and make sure to set the allowNull property to true(way for adding soft delete functionality in the database )
+update the model
+Implement the function named Softdelete in the repository layer which will update the Deleted_At column with the current timestamp for a given hotel id (dont forget to save the changes in the database using the save method)
+Also modify the function named getAllHotels in the repository layer to return only those hotels which have Deleted_At column as null use where clause in the findAll method of sequelize to filter out the deleted hotels. similarily write the service layer and controlller layer and then write the router layer

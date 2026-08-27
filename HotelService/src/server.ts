@@ -14,10 +14,5 @@ app.use(GenericErrorHandler)
 app.listen(serverconfig.PORT, async() => {
   await sequelize.authenticate()
   logger.info(`Database connected succesfully `)
-  try{
-    await hotel.create({name:"Hotel1",address:"Address1",rating:4.5,location:"Delhi"})
-  } catch (error) {
-    logger.error(`Error creating hotel: ${error}`);
-  }
   logger.info(`Server is running at http://localhost:${serverconfig.PORT}`);
 });
