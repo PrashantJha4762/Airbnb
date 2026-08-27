@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
-import type { AnyZodObject } from "zod/v3";
+import type { ZodType } from "zod";
 import { logger } from "../config/logger.config";
 
-export const validateRequestBody=(schema:AnyZodObject)=>{
+export const validateRequestBody=(schema:ZodType)=>{
     return async (req:Request,res:Response,next:NextFunction)=>{
         try{
             logger.info("Validating request body",);
@@ -20,7 +20,7 @@ export const validateRequestBody=(schema:AnyZodObject)=>{
     }
 }
 
-export const validateRequestQuery=(schema:AnyZodObject)=>{
+export const validateRequestQuery=(schema:ZodType)=>{
     return async (req:Request,res:Response,next:NextFunction)=>{
         try{
             logger.info("Validating request query");
