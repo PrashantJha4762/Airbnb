@@ -1,9 +1,17 @@
 import type { NextFunction, Request, Response } from "express";
-import type { AppError } from "../utils/error/app.error";
+import { logger } from "../config/logger.config";
 
-export const GenericErrorHandler=(err:AppError,req:Request,res:Response,next:NextFunction)=>{
-    res.status(err.StatusCode).json({
+type HttpError = Error & {
+    StatusCode?: number;
+};
+
+export const GenericErrorHandler=(err:HttpError,req:Request,res:Response,next:NextFunction)=>{
+    const statusCode = err.StatusCode ?? 500;
+
+    logger.error(err.message, { stack: err.stack });
+
+    res.status(statusCode).json({
         success:false,
-        message:err.message
+        message: statusCode === 500 ? "Internal server error" : err.message
     })
 }

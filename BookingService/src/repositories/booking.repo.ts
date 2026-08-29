@@ -1,7 +1,6 @@
+import type { Transaction } from "sequelize";
 import { Bookings, BookingStatus, IdempotencyKey } from "../db/models";
 import type { Bookingdto } from "../dto/booking.dto";
-import { GenerateIdempotencyKey } from "../utils/idemkey";
-
 export async function createBooking(bookingdata:Bookingdto){
     const booking=await Bookings.create({
         ...bookingdata,
@@ -37,12 +36,30 @@ export async function CancelBooking(bookingid:number){
     await booking.save();
     return booking
 }
-export async function ConfirmBooking(bookingid:number){
-    const booking=await Bookings.findByPk(bookingid);
+export async function ConfirmBooking(bookingid:number,tx:Transaction){
+    const booking=await Bookings.findByPk(bookingid,{
+        transaction:tx
+    });
     if(!booking){
         throw new Error("Booking not found")
     }
     booking.status=BookingStatus.CONFIRMED;
-    await booking.save();
+    await booking.save({
+        transaction:tx
+    });
     return booking
+}
+export async function FinalizeBooking(bookingid:number,tx:Transaction){
+    const idempotencykey=await IdempotencyKey.findOne({
+        where:{
+            bookingId:bookingid
+        },
+        transaction:tx
+    })
+    if(idempotencykey){
+        idempotencykey.finalized=true;
+        await idempotencykey.save({
+            transaction:tx
+        });
+    }
 }

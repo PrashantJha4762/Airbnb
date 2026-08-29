@@ -4,6 +4,7 @@ dotenv.config();
 
 type ServerConfig = {
   PORT: number;
+  RedisUrl: string;
 };
 type DBconfig={
   username:string,
@@ -14,6 +15,7 @@ type DBconfig={
 
 export const serverconfig: ServerConfig = {
   PORT: Number(process.env.PORT) || 3001,
+  RedisUrl: process.env.REDIS_URL || "redis://localhost:6379",
 };
 export const dbconfig:DBconfig={
   username:process.env.DB_USER||'root',

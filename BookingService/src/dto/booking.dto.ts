@@ -1,6 +1,6 @@
 export type Bookingdto={
-    userid:number,
-    hotelid:number,
-    totalguests:number,
+    userId:number,
+    hotelId:number,
+    totalGuests:number,
     bookingAmount:number
 }

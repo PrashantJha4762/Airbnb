@@ -8,20 +8,20 @@ export enum BookingStatus{
 
 class Bookings extends Model<InferAttributes<Bookings>,InferCreationAttributes<Bookings>>{
   declare id:CreationOptional<number>
-  declare userid:number
-  declare hotelid:number
-  declare CreatedAt:CreationOptional<Date>
-  declare UpdatedAt:CreationOptional<Date>
+  declare userId:number
+  declare hotelId:number
+  declare createdAt:CreationOptional<Date>
+  declare updatedAt:CreationOptional<Date>
   declare bookingAmount:number
   declare status:BookingStatus
-  declare totalguests:number
+  declare totalGuests:number
 }
 
 class IdempotencyKey extends Model<InferAttributes<IdempotencyKey>,InferCreationAttributes<IdempotencyKey>>{
   declare id:CreationOptional<number>
   declare idemkey:string
-  declare Created_At:CreationOptional<Date>
-  declare updated_At:CreationOptional<Date>
+  declare createdAt:CreationOptional<Date>
+  declare updatedAt:CreationOptional<Date>
   declare finalized:CreationOptional<boolean>
   declare bookingId:number
 }
@@ -32,21 +32,23 @@ Bookings.init({
         primaryKey:true,
         autoIncrement:true
     },
-    userid:{
+    userId:{
         type:"INTEGER",
         allowNull:false
     },
-    hotelid:{
+    hotelId:{
         type:"INTEGER",
         allowNull:false
     },
-    CreatedAt:{
+    createdAt:{
         type:"DATETIME",
+        field:"CreatedAt",
         allowNull:false,
         defaultValue:()=>new Date()
     },
-    UpdatedAt:{
+    updatedAt:{
         type:"DATETIME",
+        field:"UpdatedAt",
         allowNull:false,
         defaultValue:()=>new Date()
     },
@@ -59,13 +61,16 @@ Bookings.init({
         allowNull:false,
         defaultValue:'PENDING'
     },
-    totalguests:{
+    totalGuests:{
       type:"INTEGER",
+      field:"totalguest",
       allowNull:false
     }
 },{
   sequelize,
-  modelName:"Bookings"
+  modelName:"Bookings",
+  tableName:"Bookings",
+  timestamps:false
 })
 
 IdempotencyKey.init({
@@ -78,13 +83,15 @@ IdempotencyKey.init({
     type:"STRING",
     allowNull:false
   },
-  Created_At:{
+  createdAt:{
     type:"DATETIME",
+    field:"Created_At",
     allowNull:false,
     defaultValue:()=>new Date()
   },
-  updated_At:{
+  updatedAt:{
     type:"DATETIME",
+    field:"Updated_At",
     allowNull:false,
     defaultValue:()=>new Date()
   },
@@ -100,7 +107,9 @@ IdempotencyKey.init({
   }
 },{
   sequelize,
-  modelName:"IdempotencyKey"
+  modelName:"IdempotencyKey",
+  tableName:"Idempotency",
+  timestamps:false
 })
 
 Bookings.hasOne(IdempotencyKey,{
