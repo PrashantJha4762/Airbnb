@@ -2,6 +2,28 @@ import Redis from "ioredis";
 import Redlock from "redlock";
 import { serverconfig } from "./index.js";
 
+function connectToRedis() {
+    try {
+
+        let connection: Redis;
+
+        return () => {
+            if (!connection) {
+                connection = new Redis(serverconfig.RedisUrl);
+                return connection;
+            }
+
+            return connection;
+        }
+        
+
+    } catch (error) {
+        console.error('Error connecting to Redis:', error);
+        throw error;
+    }
+}
+
+export const GetRedisConnection=connectToRedis();
 export const redisClient = new Redis(serverconfig.RedisUrl, {
   // Redlock performs the retry logic itself. ioredis must not fail commands
   // after its own retry limit while a lock is being acquired or released.
