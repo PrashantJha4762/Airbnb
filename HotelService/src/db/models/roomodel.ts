@@ -53,3 +53,4 @@ Rooms.init({
     sequelize,
     modelName:'Rooms'
 });
+export default Rooms
