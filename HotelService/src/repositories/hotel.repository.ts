@@ -2,6 +2,7 @@ import { logger } from "../config/logger.config";
 import hotel from "../db/models";
 import { createhoteldto } from "../dto/hotel.dto";
 import { NotFoundError } from "../utils/error/app.error";
+import BaseRepsoitory from "./base.repository";
 
 export async function CreateHotel(hotelData:createhoteldto){
     const Hotel=await hotel.create(hotelData);
@@ -28,4 +29,29 @@ export async function SoftDelete(id:number){
     Hotel.deleted_at= new Date();
     Hotel.save();
     return true;
+}
+export class HotelRepository extends BaseRepsoitory<hotel>{
+    constructor(){
+        super(hotel)
+    }
+
+    async findall(){
+            const Hotels=await hotel.findAll({
+        where:{
+            deleted_at:null
+        }
+    })
+    return Hotels;
+    }
+
+    async softDelete(id:number){
+        const Hotel=await hotel.findByPk(id);
+        if(!Hotel){
+            logger.error("Hotel not found")
+            throw new NotFoundError(`Hotel with ${id} not found`);
+        }
+        Hotel.deleted_at= new Date();
+        Hotel.save();
+        return true;
+    }
 }
