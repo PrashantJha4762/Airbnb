@@ -7,10 +7,11 @@ import (
 )
 
 func main() {
-	cfg := app.NewConfig(":3002")
+	cfg := app.NewConfig()
 	application := app.NewApplication(cfg)
 
 	if err := application.Run(); err != nil {
 		log.Fatal(err)
 	}
 }
+
