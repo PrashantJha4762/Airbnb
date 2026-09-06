@@ -9,7 +9,7 @@ import (
 )
 
 // This fn is used to load the env values from the env files
-func load() {
+func Load() {
 	err:=godotenv.Load() 
 	if(err!=nil){
 		fmt.Println("Not able to load env files")
@@ -21,7 +21,7 @@ func load() {
 
 //This Getstring fn is used to get the string value of an environment variable. in typescript
 func GetString(key string,fallback string) string{
-	load()
+	// load()
 	value,ok:=os.LookupEnv(key)
 	if(!ok){
 		return fallback
@@ -30,7 +30,7 @@ func GetString(key string,fallback string) string{
 }
 
 //This Getint fn is used to get the int value of an environment variable. in typescript
-func GeInt(key string,fallback int) int{
+func GetInt(key string,fallback int) int{
 	//load()
 	value,ok:=os.LookupEnv(key)	
 	if(!ok){
@@ -41,4 +41,16 @@ func GeInt(key string,fallback int) int{
 		return fallback
 	}
 	return valueInt
+}
+func GetBoolean(key string,fallback bool) bool{
+	//load()
+	value,ok:=os.LookupEnv(key)
+	if(!ok){
+		return fallback
+	}
+	valueBool, err := strconv.ParseBool(value)
+	if err != nil {
+		return fallback
+	}
+	return valueBool
 }

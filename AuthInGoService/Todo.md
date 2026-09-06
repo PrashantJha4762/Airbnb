@@ -17,3 +17,10 @@ Config k lie value hoga aur Application k lie pointer.
 o/p type of NewConfig will be Config and NewApplication will be *Application.NewConfig k return type m return Config aur phir addr and NewApplication k return type m &Application aur fir config
 
 ab main.go file m change kr do app.Newconfig aur app.NewApplication call kro
+
+make a folder inside config named env and in that folder write the load fn which loads the env variables
+after that write fn called getstring,getint and getboolean
+
+Make a router folder and then create a router object using .NewRouter fn of chi
+
+Make a controller folder and then write the response and register this response in the router 
