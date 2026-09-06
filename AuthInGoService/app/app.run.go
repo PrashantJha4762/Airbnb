@@ -2,6 +2,7 @@ package app
 
 import (
 	config "AuthInGoService/config/env"
+	db "AuthInGoService/db/repositories"
 	"AuthInGoService/router"
 	"fmt"
 	"net/http"
@@ -14,6 +15,7 @@ type Config struct {
 
 type Application struct {
 	Config Config
+	Store *db.Storage
 }
 
 func NewConfig() Config {
@@ -26,6 +28,7 @@ func NewConfig() Config {
 func NewApplication(cfg Config) *Application {
 	return &Application{
 		Config: cfg,
+		Store: db.NewStorage(),
 	}
 }
 
