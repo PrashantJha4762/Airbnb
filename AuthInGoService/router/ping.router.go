@@ -4,8 +4,14 @@ import (
 	"AuthInGoService/controllers"
 )
 
-func SetUpRouter() *chi.Mux {
-	router := chi.NewRouter()
-	router.Get("/ping",controllers.Pinghandler)
-	return router
+type Router interface {
+	Register( r *chi.Mux)
+}
+
+func SetUpRouter(userRouter Router) *chi.Mux {
+	chirouter := chi.NewRouter()
+	chirouter.Get("/ping",controllers.Pinghandler)
+
+	userRouter.Register(chirouter)
+	return chirouter
 }
