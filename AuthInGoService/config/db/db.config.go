@@ -12,7 +12,7 @@ import (
 //Here we basically made a fn to connect to the db.We made an object using mysql.NewConfig()
 //using that we fetched all env variables
 //Then used sql.open fn where we passed the name of the db and cfg.formatdsn()
-func SetUpDB() {
+func SetUpDB() (*sql.DB,error) {
 	cfg := mysql.NewConfig()
 	cfg.User=config.GetString("DB_USER","root");
 	cfg.Passwd=config.GetString("DB_PWD","");
@@ -31,4 +31,5 @@ func SetUpDB() {
 		fmt.Println("Not able to ping the db");
 	}
 	fmt.Println("Connected to the database sucessfully",cfg.DBName);
+	return db,nil;
 }
