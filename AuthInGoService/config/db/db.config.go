@@ -16,7 +16,7 @@ func SetUpDB() (*sql.DB,error) {
 	cfg := mysql.NewConfig()
 	cfg.User=config.GetString("DB_USER","root");
 	cfg.Passwd=config.GetString("DB_PWD","");
-	cfg.Addr=config.GetString("DB_ADDr","127.0.0.1:3003")
+	cfg.Addr=config.GetString("DB_ADDR","127.0.0.1:3306")
 	cfg.DBName=config.GetString("DB_NAME","AUTH_DEV")
 	cfg.Net="tcp"
 	fmt.Println("Connecting to the database name",cfg.DBName)
@@ -24,11 +24,12 @@ func SetUpDB() (*sql.DB,error) {
 									//dsn string. read about it more
 	if(err!=nil){
 		fmt.Println("Some error occured");
+		return nil,err;
 	}
-	fmt.Println("Connecting to the database")
 	pingerr:=db.Ping()
 	if(pingerr!=nil){
 		fmt.Println("Not able to ping the db");
+		return nil,err;
 	}
 	fmt.Println("Connected to the database sucessfully",cfg.DBName);
 	return db,nil;

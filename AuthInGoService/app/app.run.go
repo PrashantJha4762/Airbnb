@@ -2,6 +2,7 @@ package app
 
 import (
 	config "AuthInGoService/config/env"
+	dbconfig "AuthInGoService/config/db"
 	"AuthInGoService/controllers"
 	db "AuthInGoService/db/repositories"
 	"AuthInGoService/router"
@@ -9,6 +10,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	dbb "AuthInGoService/db/repositories"
 )
 
 type Config struct {
@@ -35,7 +37,13 @@ func NewApplication(cfg Config) *Application {
 }
 
 func (app *Application) Run() error {
-	userService := services.NewUserService(app.Store.UserRepository)
+	db,err:=dbconfig.SetUpDB()
+	if(err!=nil){
+		fmt.Println("Something went wrong")
+		return err;
+	}
+	ur:=dbb.NewUserRepository(db)
+	userService := services.NewUserService(ur)
 	userController := controllers.NewUserController(userService)
 	userRouter := router.NewUserRouter(*userController)
 	server := &http.Server{
