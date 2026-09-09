@@ -2,6 +2,7 @@ package controllers
 
 import (
 	services "AuthInGoService/services"
+	"fmt"
 	"net/http"
 )
 
@@ -14,6 +15,8 @@ func NewUserController(_userservice services.UserService)* UserController{
 		userservice: _userservice,
 	}
 }
-func (u *UserController) Register( w http.ResponseWriter, r *http.Request) {
-	    w.WriteHeader(http.StatusCreated)
+func (u *UserController) GetUserInfo( w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Getting user info")
+	u.userservice.GetUserById()
+	fmt.Fprintf(w, "User info retrieved successfully")
 }
