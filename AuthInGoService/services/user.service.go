@@ -3,6 +3,8 @@ package services
 import (
 	db "AuthInGoService/db/repositories"
 	"AuthInGoService/models"
+	"AuthInGoService/utils"
+	"fmt"
 )
 
 type UserService interface {
@@ -22,8 +24,12 @@ func (u *UserServiceImpl) GetUserById() (*models.User,error) {
 }
 
 func (u *UserServiceImpl) CreateUser(username, email, password string) error {
-	err:=u.userRepository.Create(username, email, password)
+	hashedPassword, err :=utils.HashPassword(password)
 	if err!=nil{
+		fmt.Println("Not able to hash password");
+	}
+	errr:=u.userRepository.Create(username, email, hashedPassword)
+	if errr!=nil{
 		return err
 	}
 	return nil

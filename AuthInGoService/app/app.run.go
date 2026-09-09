@@ -1,16 +1,16 @@
 package app
 
 import (
-	config "AuthInGoService/config/env"
 	dbconfig "AuthInGoService/config/db"
+	config "AuthInGoService/config/env"
 	"AuthInGoService/controllers"
 	db "AuthInGoService/db/repositories"
+	dbb "AuthInGoService/db/repositories"
 	"AuthInGoService/router"
 	"AuthInGoService/services"
 	"fmt"
 	"net/http"
 	"time"
-	dbb "AuthInGoService/db/repositories"
 )
 
 type Config struct {
@@ -37,15 +37,15 @@ func NewApplication(cfg Config) *Application {
 }
 
 func (app *Application) Run() error {
-	db,err:=dbconfig.SetUpDB()
-	if(err!=nil){
+	db, err := dbconfig.SetUpDB()
+	if err != nil {
 		fmt.Println("Something went wrong")
-		return err;
+		return err
 	}
-	ur:=dbb.NewUserRepository(db)
+	ur := dbb.NewUserRepository(db)
 	userService := services.NewUserService(ur)
 	userController := controllers.NewUserController(userService)
-	userRouter := router.NewUserRouter(*userController)
+	userRouter := router.NewUserRouter(userController)
 	server := &http.Server{
 		Addr:         app.Config.Addr,
 		Handler:      router.SetUpRouter(userRouter),
