@@ -11,6 +11,7 @@ type UserRepository interface {
 	Create(username, email, password string) (error)
 	Getall() ([]*models.User, error)
 	DeleteById(id int64) (error)
+	GetUserByEmail(email string) (string,string,error)
 }
 
 type UserRepositoryImpl struct { // Hme UserRepository interface ko implement krna tha uske lie ek
@@ -72,6 +73,18 @@ func (u *UserRepositoryImpl) DeleteById(id int64) error {
 		fmt.Println("User deleted successfully")
 	}
 	return nil;
+}
+
+func(u *UserRepositoryImpl) GetUserByEmail(email string) (string,string,error){
+	query:="select Username from users where email=? "
+	var username string
+	var hpwd string
+	row:=u.db.QueryRow(query,email)
+	err:=row.Scan(&username,&hpwd)
+	if(err!=nil){
+		return "","",err;
+	}
+	return username,hpwd,err;
 }
 
 func NewUserRepository(_db *sql.DB) UserRepository { //ye constructor function h jo UserRepositoryImpl ka instance create krke return krta h

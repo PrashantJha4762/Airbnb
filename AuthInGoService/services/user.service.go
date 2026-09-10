@@ -10,6 +10,7 @@ import (
 type UserService interface {
 	GetUserById() (*models.User,error) 
 	CreateUser(username, email, password string) (error)
+	LoginUser(email, password string) error
 }
 type UserServiceImpl struct {
 	userRepository db.UserRepository //the service depend on the repo interface rather than struct so that we can easily mock the repo interface in the test cases and we can easily change the implementation of the repo interface without changing the service code.
@@ -31,6 +32,23 @@ func (u *UserServiceImpl) CreateUser(username, email, password string) error {
 	errr:=u.userRepository.Create(username, email, hashedPassword)
 	if errr!=nil{
 		return err
+	}
+	return nil
+}
+func (u *UserServiceImpl) LoginUser(email, password string) error {
+
+	//step 1: get the user by email from the repo layer
+	username,hashedpwd, err := u.userRepository.GetUserByEmail(email)
+	if err != nil {
+		return err
+	}
+	//step 2: check if the password matches with the hashed password stored in the database
+	if(username==""){
+		fmt.Println("No user found");
+	}
+	//step 3: if the password matches, generate a JWT token and return it to the user
+	if utils.CheckPassword(hashedpwd,password) ==true{
+		fmt.Println("User matched and jwt token will be generated here")
 	}
 	return nil
 }
