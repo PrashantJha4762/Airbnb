@@ -18,4 +18,5 @@ func NewUserRouter(_usercontroller *controllers.UserController) Router {
 func (u *UserRouter) Register(r *chi.Mux) {
 	r.Get("/profile", u.usercontroller.GetUserInfo)
 	r.Post("/signup", u.usercontroller.CreateUser)
+	r.Get("/login", u.usercontroller.LoginUser)
 }

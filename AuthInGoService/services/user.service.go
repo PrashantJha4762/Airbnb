@@ -1,10 +1,13 @@
 package services
 
 import (
+	config "AuthInGoService/config/env"
 	db "AuthInGoService/db/repositories"
 	"AuthInGoService/models"
 	"AuthInGoService/utils"
 	"fmt"
+
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type UserService interface {
@@ -47,9 +50,20 @@ func (u *UserServiceImpl) LoginUser(email, password string) error {
 		fmt.Println("No user found");
 	}
 	//step 3: if the password matches, generate a JWT token and return it to the user
-	if utils.CheckPassword(hashedpwd,password) ==true{
-		fmt.Println("User matched and jwt token will be generated here")
+	if utils.CheckPassword(hashedpwd,password) ==false{
+		fmt.Println("Password does not match");
 	}
+	payload:=jwt.MapClaims{
+		"email": email,
+		"username": username,
+	}
+	token:=jwt.NewWithClaims(jwt.SigningMethodHS256,payload);
+
+	tokenstring,err:=token.SignedString([]byte(config.GetString("JWT_SECRET_KEY","token")))
+	if err!=nil{
+		fmt.Println("Not able to generate token");
+	}
+	fmt.Println("Token generated successfully",tokenstring);
 	return nil
 }
 //This fn is basically facilitating the dependency injection. we are providing the instance 
