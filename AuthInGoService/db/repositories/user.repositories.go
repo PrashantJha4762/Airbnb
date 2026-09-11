@@ -53,7 +53,22 @@ func (u *UserRepositoryImpl) Create(username, email, password string) error {
 	return nil
 }
 func(u *UserRepositoryImpl) Getall() ([]*models.User, error) {
-	return nil,nil
+	query:="select * from users"
+	rows,err:=u.db.Query(query)
+	if(err!=nil){
+		return nil,err;
+	}
+	defer rows.Close()
+	var users []*models.User
+	for rows.Next(){
+		user:=&models.User{}
+		err:=rows.Scan(&user.ID,&user.Username,&user.Email,&user.Password,&user.CreatedAt,&user.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
 }
 func (u *UserRepositoryImpl) DeleteById(id int64) error {
 	query:="delete from users where id=?"
