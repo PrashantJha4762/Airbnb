@@ -29,34 +29,39 @@ func ReverseProxy(targetUrl, PathPrefix string) http.HandlerFunc {
 	return proxy.ServeHTTP
 }
 
-// ReverseProxy creates an HTTP handler that forwards incoming requests to a
-// different backend service. It is intended for use by a gateway or BFF: the
-// caller registers the returned handler for a route, while this function
-// transparently relays matching requests to targetUrl and returns the backend's
-// response to the original client.
+// What is a reverse proxy?
+// A reverse proxy sits between the client and another server. The client sends
+// a request to this application, and this function sends that request to the
+// correct backend service. When the backend sends a response, the proxy gives
+// that response back to the client.
 //
-// Implementation details:
-//   - targetUrl is parsed into a url.URL. This provides the destination scheme,
-//     host, and optional base path required by Go's reverse-proxy implementation.
-//     If it cannot be parsed, the function logs the error and returns nil, so the
-//     caller should only register the handler after supplying a valid URL.
-//   - httputil.NewSingleHostReverseProxy(target) creates the standard library
-//     reverse proxy. It supplies the serving logic that sends the request to the
-//     target service, streams its response, and handles normal proxy behavior.
-//   - The proxy's original Director is preserved and called first. The Director
-//     is responsible for rewriting an inbound request into an outbound request;
-//     retaining the original one preserves the URL and query handling supplied
-//     by NewSingleHostReverseProxy.
-//   - After the default rewrite, PathPrefix is removed from r.URL.Path. For
-//     example, a gateway request to /users/profile with PathPrefix /users is
-//     forwarded to the target as /profile. This lets the public gateway route
-//     differ from the route expected by the downstream service.
-//   - r.Host is set to target.Host so the backend receives its own host header,
-//     rather than the host used by the client to reach the gateway.
-//   - If authentication middleware previously placed a string userId in the
-//     request context, it is copied to the X-User-Id header. The downstream
-//     service can then identify the authenticated user without needing to repeat
-//     the gateway's authentication step.
+// Example:
+// A client calls:      GET /users/profile
+// This application forwards the request to the user service, then returns the
+// user service's response to the client.
 //
-// The returned proxy.ServeHTTP method satisfies http.HandlerFunc and can be
-// passed directly to a router or net/http ServeMux.
+// How this function works:
+// 1. targetUrl is the address of the backend service, for example
+//    "http://localhost:8081". url.Parse changes that text into a URL value Go
+//    can use. If the address is invalid, an error is printed and nil is returned.
+//
+// 2. NewSingleHostReverseProxy creates the proxy. Go's built-in proxy handles
+//    sending the request to the backend and returning the backend response.
+//
+// 3. originalDirector keeps Go's default request setup. We call it first so
+//    the request is correctly changed to use the target backend URL.
+//
+// 4. PathPrefix is removed from the path before forwarding the request. For
+//    example, when PathPrefix is "/users", a request for "/users/profile" is
+//    sent to the backend as "/profile". This is useful when the gateway route
+//    has a prefix that the backend service does not need.
+//
+// 5. The Host header is changed to the backend's host. This tells the backend
+//    that the request is meant for it, instead of the gateway.
+//
+// 6. If earlier authentication code saved a user ID in the request context,
+//    this function adds it as the X-User-Id header. The backend can read this
+//    header to know which logged-in user made the request.
+//
+// Finally, proxy.ServeHTTP is returned as an http.HandlerFunc, so it can be
+// registered in a Go router to handle requests for a particular route.
