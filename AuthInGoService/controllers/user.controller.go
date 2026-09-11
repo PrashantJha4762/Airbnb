@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"AuthInGoService/dto"
 	services "AuthInGoService/services"
-	"encoding/json"
+	"AuthInGoService/utils"
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -28,32 +30,57 @@ func (u *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+	if err := utils.ReadJsonResponse(r, &request); err != nil {
+		_ = utils.WriteJsonResponse(w, http.StatusBadRequest, map[string]string{
+			"error": "invalid request body",
+		})
 		return
 	}
 
 	if err := u.userservice.CreateUser(request.Username, request.Email, request.Password); err != nil {
-		http.Error(w, "unable to create user", http.StatusInternalServerError)
+		_ = utils.WriteJsonResponse(w, http.StatusInternalServerError, map[string]string{
+			"error": "unable to create user",
+		})
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintln(w, "User created successfully")
+	_ = utils.WriteJsonResponse(w, http.StatusCreated, map[string]string{
+		"message": "User created successfully",
+	})
 }
 func (u *UserController) LoginUser(w http.ResponseWriter, r *http.Request) {
-	var request struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+	var request dto.LoginRequest
+	if err := utils.ReadJsonResponse(r, &request); err != nil {
+		_ = utils.WriteJsonResponse(w, http.StatusBadRequest, map[string]string{
+			"error": "invalid request body",
+		})
 		return
 	}
-	if err := u.userservice.LoginUser(request.Email, request.Password); err != nil {
-		http.Error(w, "unable to login user", http.StatusInternalServerError)
+
+	if request.Email == "" || request.Password == "" {
+		_ = utils.WriteJsonResponse(w, http.StatusBadRequest, map[string]string{
+			"error": "email and password are required",
+		})
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "User logged in successfully")
-}	
+
+	token, err := u.userservice.LoginUser(request.Email, request.Password)
+	if err != nil {
+		if errors.Is(err, services.ErrInvalidCredentials) {
+			_ = utils.WriteJsonResponse(w, http.StatusUnauthorized, map[string]string{
+				"error": "invalid email or password",
+			})
+			return
+		}
+
+		_ = utils.WriteJsonResponse(w, http.StatusInternalServerError, map[string]string{
+			"error": "unable to login user",
+		})
+		return
+	}
+
+	_ = utils.WriteJsonResponse(w, http.StatusOK, map[string]string{
+		"message": "User logged in successfully",
+		"token":   token,
+	})
+}

@@ -76,7 +76,7 @@ func (u *UserRepositoryImpl) DeleteById(id int64) error {
 }
 
 func(u *UserRepositoryImpl) GetUserByEmail(email string) (string,string,error){
-	query:="select Username from users where email=? "
+	query:="select username, password from users where email=? "
 	var username string
 	var hpwd string
 	row:=u.db.QueryRow(query,email)
