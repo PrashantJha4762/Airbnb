@@ -16,13 +16,16 @@ func JwtAuth(next http.Handler) http.Handler{
 
 		if authHeader=="" {
 			http.Error(w,"Authorization Handler is required",http.StatusUnauthorized)
+			return
 		}
 		if !strings.HasPrefix(authHeader,"Bearer"){
 			http.Error(w,"Bearer must be present",http.StatusUnauthorized)
+			return
 		}
-		token:=strings.TrimPrefix(authHeader,"Bearer")
+		token:=strings.TrimSpace(strings.TrimPrefix(authHeader,"Bearer"))
 		if token==""{
 			http.Error(w,"Token is required",http.StatusUnauthorized)
+			return
 		}
 		claims:=jwt.MapClaims{}
 

@@ -11,7 +11,7 @@ type UserRepository interface {
 	Create(username, email, password string) error
 	Getall() ([]*models.User, error)
 	DeleteById(id int64) error
-	GetUserByEmail(email string) (string, string, error)
+	GetUserByEmail(email string) (int, string, string, error)
 }
 
 type UserRepositoryImpl struct { // Hme UserRepository interface ko implement krna tha uske lie ek
@@ -93,16 +93,17 @@ func (u *UserRepositoryImpl) DeleteById(id int64) error {
 	return nil
 }
 
-func (u *UserRepositoryImpl) GetUserByEmail(email string) (string, string, error) {
-	query := "select username, password from users where email=? "
+func (u *UserRepositoryImpl) GetUserByEmail(email string) (int, string, string, error) {
+	query := "select id, username, password from users where email=?"
+	var id int
 	var username string
 	var hpwd string
 	row := u.db.QueryRow(query, email)
-	err := row.Scan(&username, &hpwd)
+	err := row.Scan(&id, &username, &hpwd)
 	if err != nil {
-		return "", "", err
+		return 0, "", "", err
 	}
-	return username, hpwd, err
+	return id, username, hpwd, nil
 }
 
 func NewUserRepository(_db *sql.DB) UserRepository { //ye constructor function h jo UserRepositoryImpl ka instance create krke return krta h

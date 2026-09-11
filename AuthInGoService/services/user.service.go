@@ -46,7 +46,7 @@ func (u *UserServiceImpl) CreateUser(username, email, password string) error {
 func (u *UserServiceImpl) LoginUser(email, password string) (string, error) {
 
 	//step 1: get the user by email from the repo layer
-	username, hashedpwd, err := u.userRepository.GetUserByEmail(email)
+	userID, username, hashedpwd, err := u.userRepository.GetUserByEmail(email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", ErrInvalidCredentials
@@ -60,6 +60,7 @@ func (u *UserServiceImpl) LoginUser(email, password string) (string, error) {
 
 	// The credentials are valid, so create a token for this session.
 	payload := jwt.MapClaims{
+		"user_id":  userID,
 		"email":    email,
 		"username": username,
 	}
