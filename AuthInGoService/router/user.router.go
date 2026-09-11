@@ -2,6 +2,7 @@ package router
 
 import (
 	controllers "AuthInGoService/controllers"
+	middleware "AuthInGoService/middleware"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -16,7 +17,7 @@ func NewUserRouter(_usercontroller *controllers.UserController) Router {
 	}
 }
 func (u *UserRouter) Register(r *chi.Mux) {
-	r.Get("/profile", u.usercontroller.GetUserInfo)
+	r.With(middleware.JwtAuth).Get("/profile", u.usercontroller.GetUserInfo)
 	r.Post("/signup", u.usercontroller.CreateUser)
 	r.Post("/login", u.usercontroller.LoginUser)
 }
