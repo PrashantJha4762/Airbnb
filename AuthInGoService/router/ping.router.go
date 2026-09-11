@@ -1,7 +1,10 @@
 package router
+
 import (
-	"github.com/go-chi/chi/v5"
 	"AuthInGoService/controllers"
+	"AuthInGoService/middleware"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type Router interface {
@@ -10,6 +13,7 @@ type Router interface {
 
 func SetUpRouter(userRouter Router) *chi.Mux {
 	chirouter := chi.NewRouter()
+	chirouter.Use(middleware.RateLimiter); 
 	chirouter.Get("/ping",controllers.Pinghandler)
 
 	userRouter.Register(chirouter)
