@@ -11,6 +11,7 @@ type RoleRepository interface {
 	GetRoleByName(name string) (*models.Role,error)
 	GetAllRoles() ([]*models.Role,error)
 	CreateRole(name, description string) error
+	DeleteRoleById(id int) error
 }
 type RoleRepositoryImpl struct {
 	db *sql.DB
@@ -75,6 +76,24 @@ func (r *RoleRepositoryImpl) CreateRole(name, description string)error{
 	}
 	if rowsaffected>0{
 		fmt.Println("Role created successfully")
+	}
+	return nil
+}
+func (r *RoleRepositoryImpl) DeleteRoleById(id int)error{
+	query:="Delete from roles where id=?"
+	result,err:=r.db.Exec(query,id)
+	if err != nil {
+		return  err
+	}
+	rowsaffected,err:=result.RowsAffected()
+	if err != nil {
+		return  err
+	}
+	if rowsaffected==0{
+		return fmt.Errorf("Role not deleted")
+	}
+	if rowsaffected>0{
+		fmt.Println("Role deleted successfully")
 	}
 	return nil
 }
