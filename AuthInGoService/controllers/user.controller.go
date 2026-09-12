@@ -2,10 +2,10 @@ package controllers
 
 import (
 	"AuthInGoService/dto"
+	"AuthInGoService/middleware"
 	services "AuthInGoService/services"
 	"AuthInGoService/utils"
 	"errors"
-	"fmt"
 	"net/http"
 )
 
@@ -19,9 +19,19 @@ func NewUserController(_userservice services.UserService) *UserController {
 	}
 }
 func (u *UserController) GetUserInfo(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Getting user info")
-	u.userservice.GetUserById()
-	fmt.Fprintf(w, "User info retrieved successfully")
+	userID, ok := middleware.UserIDFromContext(r.Context())
+	if !ok {
+		_ = utils.WriteJsonResponse(w, http.StatusUnauthorized, map[string]string{"error": "invalid authentication context"})
+		return
+	}
+
+	user, err := u.userservice.GetUserById(userID)
+	if err != nil {
+		_ = utils.WriteJsonResponse(w, http.StatusNotFound, map[string]string{"error": "user not found"})
+		return
+	}
+
+	_ = utils.WriteJsonResponse(w, http.StatusOK, user)
 }
 func (u *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var request struct {
@@ -33,6 +43,12 @@ func (u *UserController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if err := utils.ReadJsonResponse(r, &request); err != nil {
 		_ = utils.WriteJsonResponse(w, http.StatusBadRequest, map[string]string{
 			"error": "invalid request body",
+		})
+		return
+	}
+	if request.Username == "" || request.Email == "" || request.Password == "" {
+		_ = utils.WriteJsonResponse(w, http.StatusBadRequest, map[string]string{
+			"error": "username, email, and password are required",
 		})
 		return
 	}

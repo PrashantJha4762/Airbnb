@@ -8,12 +8,13 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type UserService interface {
-	GetUserById() (*models.User, error)
+	GetUserById(id int) (*models.User, error)
 	CreateUser(username, email, password string) error
 	LoginUser(email, password string) (string, error)
 }
@@ -24,8 +25,8 @@ type UserServiceImpl struct {
 	userRepository db.UserRepository //the service depend on the repo interface rather than struct so that we can easily mock the repo interface in the test cases and we can easily change the implementation of the repo interface without changing the service code.
 }
 
-func (u *UserServiceImpl) GetUserById() (*models.User, error) {
-	user, err := u.userRepository.GetById()
+func (u *UserServiceImpl) GetUserById(id int) (*models.User, error) {
+	user, err := u.userRepository.GetById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +36,7 @@ func (u *UserServiceImpl) GetUserById() (*models.User, error) {
 func (u *UserServiceImpl) CreateUser(username, email, password string) error {
 	hashedPassword, err := utils.HashPassword(password)
 	if err != nil {
-		fmt.Println("Not able to hash password")
+		return fmt.Errorf("hash password: %w", err)
 	}
 	errr := u.userRepository.Create(username, email, hashedPassword)
 	if errr != nil {
@@ -63,6 +64,7 @@ func (u *UserServiceImpl) LoginUser(email, password string) (string, error) {
 		"user_id":  userID,
 		"email":    email,
 		"username": username,
+		"exp":      time.Now().Add(24 * time.Hour).Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 

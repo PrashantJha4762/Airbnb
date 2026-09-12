@@ -39,9 +39,10 @@ func NewApplication(cfg Config) *Application {
 func (app *Application) Run() error {
 	db, err := dbconfig.SetUpDB()
 	if err != nil {
-		fmt.Println("Something went wrong")
+		fmt.Println("database setup failed:", err)
 		return err
 	}
+	defer db.Close()
 	ur := dbb.NewUserRepository(db)
 	userService := services.NewUserService(ur)
 	userController := controllers.NewUserController(userService)

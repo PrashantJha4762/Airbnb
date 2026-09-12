@@ -7,7 +7,7 @@ import (
 )
 
 type UserRepository interface {
-	GetById() (*models.User, error)
+	GetById(id int) (*models.User, error)
 	Create(username, email, password string) error
 	Getall() ([]*models.User, error)
 	DeleteById(id int64) error
@@ -18,11 +18,11 @@ type UserRepositoryImpl struct { // Hme UserRepository interface ko implement kr
 	db *sql.DB // ek struct chahiye thi so hmne ye banaya
 }
 
-func (u *UserRepositoryImpl) GetById() (*models.User, error) { //jaise hi hmne ye method banaya ye UserRepository interface ko implement krne lag gya
+func (u *UserRepositoryImpl) GetById(id int) (*models.User, error) { //jaise hi hmne ye method banaya ye UserRepository interface ko implement krne lag gya
 	//step 1: write the query
 	query := "SELECT * FROM users WHERE id = ?"
 	//step 2: execute the query
-	row := u.db.QueryRow(query, 1) //ye query execute krke ek row return krta h
+	row := u.db.QueryRow(query, id) //ye query execute krke ek row return krta h
 
 	//step 3: Process the query result
 	user := &models.User{}

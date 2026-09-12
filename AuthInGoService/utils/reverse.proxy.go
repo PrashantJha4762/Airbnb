@@ -1,29 +1,32 @@
 package utils
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
 )
 
-func ReverseProxy(targetUrl, PathPrefix string) http.HandlerFunc {
-	target,err:=url.Parse(targetUrl)
-	if err != nil {
-		fmt.Println("Some error occured",err)
-		return nil
+func ReverseProxy(targetURL, pathPrefix string) http.HandlerFunc {
+	target, err := url.Parse(targetURL)
+	if err != nil || target.Scheme == "" || target.Host == "" {
+		return func(w http.ResponseWriter, _ *http.Request) {
+			http.Error(w, "proxy target is unavailable", http.StatusBadGateway)
+		}
 	}
-	proxy:=httputil.NewSingleHostReverseProxy(target)
+	proxy := httputil.NewSingleHostReverseProxy(target)
 
-	originalDirector:=proxy.Director
+	originalDirector := proxy.Director
 
-	proxy.Director=func(r *http.Request){
+	proxy.Director = func(r *http.Request) {
+		r.URL.Path = strings.TrimPrefix(r.URL.Path, pathPrefix)
+		if r.URL.Path == "" {
+			r.URL.Path = "/"
+		}
 		originalDirector(r)
-		r.URL.Path=strings.TrimPrefix(r.URL.Path,PathPrefix)
-		r.Host=target.Host
-		if userId,ok:=r.Context().Value("userId").(string);ok{
-			r.Header.Set("X-User-Id",userId)
+		r.Host = target.Host
+		if userId, ok := r.Context().Value("userId").(string); ok {
+			r.Header.Set("X-User-Id", userId)
 		}
 	}
 	return proxy.ServeHTTP
