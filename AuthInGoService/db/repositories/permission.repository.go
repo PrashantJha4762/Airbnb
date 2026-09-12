@@ -57,8 +57,21 @@ func (p *PermissionRepositoryImpl) GetAllPermissions() ([]*models.Permission,err
 }
 func (p *PermissionRepositoryImpl) CreatePermission(name, description, resource, action string) error {
 	query:="INSERT INTO permissions (name, description, resource, action) VALUES (?, ?, ?, ?)"
-	_, err:=p.db.Exec(query, name, description, resource, action)
-	return err
+	result, err := p.db.Exec(query, name, description, resource, action)
+	if err != nil {
+		return err
+	}
+	rowAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowAffected == 0 {
+		return fmt.Errorf("no rows affected")
+	}
+	if rowAffected > 0 {
+		fmt.Println("Permission created successfully")
+	}
+	return nil
 }
 func (p *PermissionRepositoryImpl) DeletePermissionById(id int) error {
 	query:="DELETE FROM permissions WHERE id=?"
