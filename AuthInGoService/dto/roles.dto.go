@@ -16,3 +16,10 @@ type Permission struct{
 	CreatedAt string
 	UpdatedAt string
 }
+type RolePermission struct{
+	Id int
+	RoleId int
+	PermissionId int
+	CreatedAt string
+	UpdatedAt string
+}
