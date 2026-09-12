@@ -1,4 +1,4 @@
-package dto
+package models
 
 type Role struct{
 	Id int
