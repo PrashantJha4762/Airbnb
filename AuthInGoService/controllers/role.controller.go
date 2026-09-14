@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"AuthInGoService/dto"
 	services "AuthInGoService/services"
 	"encoding/json"
 	"net/http"
@@ -47,3 +48,74 @@ func (rc *RoleController) GetAllRoles(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(roles)
 }
+
+func (rc *RoleController) CreateRole(w http.ResponseWriter, r *http.Request) {
+	payload:=r.Context().Value("payload").(dto.CreateRoleRequestDTO)
+
+	err := rc.roleService.CreateRole(payload.Name, payload.Description)
+	if err != nil {
+		http.Error(w, "Failed to create role", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Role created successfully"})
+}
+func (rc *RoleController) DeleteRoleById(w http.ResponseWriter, r *http.Request) {
+	roleId := chi.URLParam(r, "id")
+	if roleId == "" {
+		http.Error(w, "Missing role ID", http.StatusBadRequest)
+		return
+	}
+	roleid, err := strconv.Atoi(roleId)
+	if err != nil {
+		http.Error(w, "Invalid role ID", http.StatusBadRequest)
+		return
+	}
+	err = rc.roleService.DeleteRoleById(roleid)
+	if err != nil {
+		http.Error(w, "Failed to delete role", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Role deleted successfully"})
+}
+func (rc *RoleController) AssignRoleToUser(w http.ResponseWriter, r *http.Request) {
+	payload := r.Context().Value("payload").(dto.AssignPermissionRequestDTO)
+	userIdStr := chi.URLParam(r, "userId")
+	if userIdStr == "" {
+		http.Error(w, "Missing user ID", http.StatusBadRequest)
+		return
+	}
+	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+	err = rc.roleService.AssignRoleToUser(userId, int(payload.PermissionId))
+	if err != nil {
+		http.Error(w, "Failed to assign role to user", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Role assigned to user successfully"})
+}
+func (rc *RoleController) RemoveRoleFromUser(w http.ResponseWriter, r *http.Request) {
+	payload := r.Context().Value("payload").(dto.RemovePermissionRequestDTO)
+	userIdStr := chi.URLParam(r, "userId")
+	if userIdStr == "" {
+		http.Error(w, "Missing user ID", http.StatusBadRequest)
+		return
+	}
+	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+	err = rc.roleService.RemoveRoleFromUser(int64(userId), int(payload.PermissionId))
+	if err != nil {
+		http.Error(w, "Failed to remove role from user", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Role removed from user successfully"})
+}	
