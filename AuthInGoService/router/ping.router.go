@@ -11,11 +11,12 @@ type Router interface {
 	Register( r *chi.Mux)
 }
 
-func SetUpRouter(userRouter Router) *chi.Mux {
+func SetUpRouter(userRouter Router,RoleRouter Router) *chi.Mux {
 	chirouter := chi.NewRouter()
 	chirouter.Use(middleware.RateLimiter); 
 	chirouter.Get("/ping",controllers.Pinghandler)
 
 	userRouter.Register(chirouter)
+	RoleRouter.Register(chirouter)
 	return chirouter
 }
