@@ -36,3 +36,12 @@ func (rc *RoleController) GetRoleById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(role)
 }
+func (rc *RoleController) GetAllRoles(w http.ResponseWriter, r *http.Request) {
+	roles, err := rc.roleService.GetAllRoles()
+	if err != nil {
+		http.Error(w, "Failed to fetch roles", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(roles)
+}
