@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type RoleController struct {
@@ -18,14 +20,14 @@ func NewRoleController(roleService services.RoleService) *RoleController {
 }
 
 func (rc *RoleController) GetRoleById(w http.ResponseWriter, r *http.Request) {
-	roleId := r.URL.Query().Get("id")
-	roleid,err:= strconv.Atoi(roleId)
-	if err != nil {
-		http.Error(w, "Invalid role ID", http.StatusBadRequest)
-		return
-	}
+	roleId := chi.URLParam(r, "id")
 	if roleId == "" {
 		http.Error(w, "Missing role ID", http.StatusBadRequest)
+		return
+	}
+	roleid, err := strconv.Atoi(roleId)
+	if err != nil {
+		http.Error(w, "Invalid role ID", http.StatusBadRequest)
 		return
 	}
 	role, err := rc.roleService.GetRoleById((roleid))

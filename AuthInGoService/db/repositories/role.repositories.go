@@ -7,9 +7,9 @@ import (
 )
 
 type RoleRepository interface {
-	GetRoleById(id int) (*models.Role,error)
-	GetRoleByName(name string) (*models.Role,error)
-	GetAllRoles() ([]*models.Role,error)
+	GetRoleById(id int) (*models.Role, error)
+	GetRoleByName(name string) (*models.Role, error)
+	GetAllRoles() ([]*models.Role, error)
 	CreateRole(name, description string) error
 	DeleteRoleById(id int) error
 }
@@ -17,43 +17,43 @@ type RoleRepositoryImpl struct {
 	db *sql.DB
 }
 
-func (r *RoleRepositoryImpl) GetRoleById(id int) (*models.Role,error){
-	query:="Select id, name,description, created_at, updated_at from roles where id=?"
+func (r *RoleRepositoryImpl) GetRoleById(id int) (*models.Role, error) {
+	query := "Select id, name,description, created_at, updated_at from role where id=?"
 
-	row:=r.db.QueryRow(query,id)
+	row := r.db.QueryRow(query, id)
 
-	role:=&models.Role{}
+	role := &models.Role{}
 
-	err:=row.Scan(&role.Id,&role.Name,&role.Description,&role.CreatedAt,&role.UpdatedAt)
+	err := row.Scan(&role.Id, &role.Name, &role.Description, &role.CreatedAt, &role.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
 	return role, nil
 }
-func (r *RoleRepositoryImpl) GetRoleByName(name string) (*models.Role,error){
-	query:="Select id, name,description, created_at, updated_at from roles where name=?"
+func (r *RoleRepositoryImpl) GetRoleByName(name string) (*models.Role, error) {
+	query := "Select id, name,description, created_at, updated_at from role where name=?"
 
-	row:=r.db.QueryRow(query,name)
+	row := r.db.QueryRow(query, name)
 
-	role:=&models.Role{}
+	role := &models.Role{}
 
-	err:=row.Scan(&role.Id,&role.Name,&role.Description,&role.CreatedAt,&role.UpdatedAt)
+	err := row.Scan(&role.Id, &role.Name, &role.Description, &role.CreatedAt, &role.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
 	return role, nil
 }
-func (r *RoleRepositoryImpl) GetAllRoles() ([]*models.Role,error){
-	query:="Select id, name,description, created_at, updated_at from roles"
-	rows,err:=r.db.Query(query)
+func (r *RoleRepositoryImpl) GetAllRoles() ([]*models.Role, error) {
+	query := "Select id, name,description, created_at, updated_at from role"
+	rows, err := r.db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	roles:=[]*models.Role{}
-	for rows.Next(){
-		role:=models.Role{}
-		err:=rows.Scan(&role.Id,&role.Name,&role.Description,&role.CreatedAt,&role.UpdatedAt)
+	roles := []*models.Role{}
+	for rows.Next() {
+		role := models.Role{}
+		err := rows.Scan(&role.Id, &role.Name, &role.Description, &role.CreatedAt, &role.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -61,44 +61,44 @@ func (r *RoleRepositoryImpl) GetAllRoles() ([]*models.Role,error){
 	}
 	return roles, nil
 }
-func (r *RoleRepositoryImpl) CreateRole(name, description string)error{
-	query:="Insert into roles(name,description) values(?,?)"
-	result,err:=r.db.Exec(query,name,description)
+func (r *RoleRepositoryImpl) CreateRole(name, description string) error {
+	query := "Insert into role(name,description) values(?,?)"
+	result, err := r.db.Exec(query, name, description)
 	if err != nil {
-		return  err
+		return err
 	}
-	rowsaffected,err:=result.RowsAffected()
+	rowsaffected, err := result.RowsAffected()
 	if err != nil {
-		return  err
+		return err
 	}
-	if rowsaffected==0{
+	if rowsaffected == 0 {
 		return fmt.Errorf("Role not created")
 	}
-	if rowsaffected>0{
+	if rowsaffected > 0 {
 		fmt.Println("Role created successfully")
 	}
 	return nil
 }
-func (r *RoleRepositoryImpl) DeleteRoleById(id int)error{
-	query:="Delete from roles where id=?"
-	result,err:=r.db.Exec(query,id)
+func (r *RoleRepositoryImpl) DeleteRoleById(id int) error {
+	query := "Delete from role where id=?"
+	result, err := r.db.Exec(query, id)
 	if err != nil {
-		return  err
+		return err
 	}
-	rowsaffected,err:=result.RowsAffected()
+	rowsaffected, err := result.RowsAffected()
 	if err != nil {
-		return  err
+		return err
 	}
-	if rowsaffected==0{
+	if rowsaffected == 0 {
 		return fmt.Errorf("Role not deleted")
 	}
-	if rowsaffected>0{
+	if rowsaffected > 0 {
 		fmt.Println("Role deleted successfully")
 	}
 	return nil
 }
 func NewRoleRepository(db *sql.DB) RoleRepository {
 	return &RoleRepositoryImpl{
-		db:db,
+		db: db,
 	}
 }

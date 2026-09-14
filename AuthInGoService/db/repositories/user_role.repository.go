@@ -18,7 +18,7 @@ type UserRoleRepositoryImpl struct {
 }
 
 func (ur *UserRoleRepositoryImpl) GetUserRoles(userId int) ([]*models.Role, error) {
-	query := "SELECT r.id, r.name, r.description, r.created_at, r.updated_at FROM roles r INNER JOIN user_roles ur ON r.id = ur.role_id WHERE ur.user_id = ?"
+	query := "SELECT r.id, r.name, r.description, r.created_at, r.updated_at FROM role r INNER JOIN user_roles ur ON r.id = ur.role_id WHERE ur.users_id = ?"
 	rows, err := ur.db.Query(query, userId)
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func (ur *UserRoleRepositoryImpl) GetUserRoles(userId int) ([]*models.Role, erro
 	return roles, nil
 }
 func (ur *UserRoleRepositoryImpl) AssignRoleToUser(userId, roleId int) error {
-	query := "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)"
+	query := "INSERT INTO user_roles (users_id, role_id) VALUES (?, ?)"
 	_, err := ur.db.Exec(query, userId, roleId)
 	if err != nil {
 		return err
@@ -46,11 +46,11 @@ func (ur *UserRoleRepositoryImpl) AssignRoleToUser(userId, roleId int) error {
 	return nil
 }
 func (ur *UserRoleRepositoryImpl) RemoveRoleFromUser(userId int64, roleId int) error {
-	query := "DELETE FROM user_roles WHERE user_id = ? AND role_id = ?"
+	query := "DELETE FROM user_roles WHERE users_id = ? AND role_id = ?"
 	_, err := ur.db.Exec(query, userId, roleId)
 	if err != nil {
 		return err
-	}	
+	}
 	return nil
 }
 func (ur *UserRoleRepositoryImpl) GetUserPermissions(userId int) ([]*models.Permission, error) {
@@ -59,7 +59,7 @@ func (ur *UserRoleRepositoryImpl) GetUserPermissions(userId int) ([]*models.Perm
 		FROM permissions p
 		INNER JOIN role_permissions rp ON p.id = rp.permission_id
 		INNER JOIN user_roles ur ON rp.role_id = ur.role_id
-		WHERE ur.user_id = ?`
+		WHERE ur.users_id = ?`
 	rows, err := ur.db.Query(query, userId)
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (ur *UserRoleRepositoryImpl) HasPermission(userId int, permissionName strin
 		SELECT COUNT(*) FROM permissions p
 		INNER JOIN role_permissions rp ON p.id = rp.permission_id
 		INNER JOIN user_roles ur ON rp.role_id = ur.role_id
-		WHERE ur.user_id = ? AND p.name = ?`
+		WHERE ur.users_id = ? AND p.name = ?`
 	var count int
 	err := ur.db.QueryRow(query, userId, permissionName).Scan(&count)
 	if err != nil {
@@ -93,9 +93,9 @@ func (ur *UserRoleRepositoryImpl) HasPermission(userId int, permissionName strin
 }
 func (ur *UserRoleRepositoryImpl) HasRole(userId int, roleName string) (bool, error) {
 	query := `
-		SELECT COUNT(*) FROM roles r
+		SELECT COUNT(*) FROM role r
 		INNER JOIN user_roles ur ON r.id = ur.role_id
-		WHERE ur.user_id = ? AND r.name = ?`
+		WHERE ur.users_id = ? AND r.name = ?`
 	var count int
 	err := ur.db.QueryRow(query, userId, roleName).Scan(&count)
 	if err != nil {
