@@ -1,7 +1,9 @@
 package middleware
 
 import (
-	config "AuthInGoService/config/env"
+	dbconfig "AuthInGoService/config/db"
+	envconfig "AuthInGoService/config/env"
+	repo "AuthInGoService/db/repositories"
 	"context"
 	"fmt"
 	"net/http"
@@ -43,7 +45,7 @@ func JwtAuth(next http.Handler) http.Handler {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
-			return ([]byte(config.GetString("JWT_SECRET_KEY", "token"))), nil
+			return []byte(envconfig.GetString("JWT_SECRET_KEY", "token")), nil
 		})
 		if err != nil || !parsedToken.Valid {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
@@ -66,4 +68,51 @@ func JwtAuth(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 
+}
+
+func RequireAllRoles(roles ...string) func(http.Handler) http.Handler {
+	// RequireAllRoles only allows a request through when its authenticated user
+	// has every requested role.
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			userID, ok := UserIDFromContext(r.Context())
+			if !ok || userID < 1 {
+				http.Error(w, "Authentication is required", http.StatusUnauthorized)
+				return
+			}
+
+			if len(roles) == 0 {
+				http.Error(w, "No roles configured for this route", http.StatusInternalServerError)
+				return
+			}
+
+			dbconn, err := dbconfig.SetUpDB()
+			if err != nil {
+				http.Error(w, "Failed to connect to database", http.StatusInternalServerError)
+				return
+			}
+			defer dbconn.Close()
+
+			userRoleRepository := repo.NewUserRoleRepository(dbconn)
+			for _, role := range roles {
+				roleName := strings.TrimSpace(role)
+				if roleName == "" {
+					http.Error(w, "Invalid role configured for this route", http.StatusInternalServerError)
+					return
+				}
+
+				hasRole, err := userRoleRepository.HasRole(userID, roleName)
+				if err != nil {
+					http.Error(w, "Failed to fetch user roles", http.StatusInternalServerError)
+					return
+				}
+				if !hasRole {
+					http.Error(w, "Forbidden: required role is missing", http.StatusForbidden)
+					return
+				}
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }
