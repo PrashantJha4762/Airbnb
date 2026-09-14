@@ -18,5 +18,5 @@ func NewRoleRouter(_rolecontroller *controllers.RoleController) Router {
 
 func (rr *RoleRouter) Register(r *chi.Mux) {
 	r.Get("/roles/{id}",rr.rolecontroller.GetRoleById);
-	r.Get("/roles",rr.rolecontroller.);
+	r.Get("/roles",rr.rolecontroller.GetAllRoles);
 }
