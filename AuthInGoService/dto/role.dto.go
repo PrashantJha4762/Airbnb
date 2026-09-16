@@ -10,10 +10,10 @@ type UpdateRoleRequestDTO struct {
 	Description string `json:"description" validate:"required,min=5,max=200"`
 }
 
-type AssignPermissionRequestDTO struct {
-	PermissionId int64 `json:"permission_id" validate:"required"`
+type AssignRoleRequestDTO struct {
+	RoleID int64 `json:"role_id" validate:"required"`
 }
 
-type RemovePermissionRequestDTO struct {
-	PermissionId int64 `json:"permission_id" validate:"required"`
+type RemoveRoleRequestDTO struct {
+	RoleID int64 `json:"role_id" validate:"required"`
 }

@@ -19,17 +19,26 @@ func ReverseProxy(targetURL, pathPrefix string) http.HandlerFunc {
 	originalDirector := proxy.Director
 
 	proxy.Director = func(r *http.Request) {
-		r.URL.Path = strings.TrimPrefix(r.URL.Path, pathPrefix)
-		if r.URL.Path == "" {
-			r.URL.Path = "/"
+		forwardPath := strings.TrimPrefix(r.URL.Path, pathPrefix)
+		if forwardPath == "" {
+			forwardPath = "/"
 		}
 		originalDirector(r)
+		r.URL.Path = joinProxyPath(target.Path, forwardPath)
+		r.URL.RawPath = ""
 		r.Host = target.Host
+		// Never forward a client-supplied identity header. The gateway is the
+		// only authority that sets this header after JWT authentication.
+		r.Header.Del("X-User-Id")
 		if userId, ok := r.Context().Value("userId").(string); ok {
 			r.Header.Set("X-User-Id", userId)
 		}
 	}
 	return proxy.ServeHTTP
+}
+
+func joinProxyPath(basePath, requestPath string) string {
+	return strings.TrimRight(basePath, "/") + "/" + strings.TrimLeft(requestPath, "/")
 }
 
 // What is a reverse proxy?

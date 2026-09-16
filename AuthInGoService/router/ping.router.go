@@ -8,15 +8,16 @@ import (
 )
 
 type Router interface {
-	Register( r *chi.Mux)
+	Register(r *chi.Mux)
 }
 
-func SetUpRouter(userRouter Router,RoleRouter Router) *chi.Mux {
+func SetUpRouter(userRouter Router, RoleRouter Router) *chi.Mux {
 	chirouter := chi.NewRouter()
-	chirouter.Use(middleware.RateLimiter); 
-	chirouter.Get("/ping",controllers.Pinghandler)
+	chirouter.Use(middleware.RateLimiter)
+	chirouter.Get("/ping", controllers.Pinghandler)
 
 	userRouter.Register(chirouter)
 	RoleRouter.Register(chirouter)
+	RegisterGatewayRoutes(chirouter)
 	return chirouter
 }

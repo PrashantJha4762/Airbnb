@@ -49,8 +49,9 @@ func (r *RoleServiceImpl) RemoveRoleFromUser(userId int64, roleId int) error {
 }
 
 // NewRoleService creates a role service with its repository dependencies.
-func NewRoleService(roleRepository db.RoleRepository) RoleService {
+func NewRoleService(roleRepository db.RoleRepository, userRoleRepository db.UserRoleRepository) RoleService {
 	return &RoleServiceImpl{
 		roleRepository:     roleRepository,
+		userRoleRepository: userRoleRepository,
 	}
 }

@@ -44,16 +44,17 @@ func (app *Application) Run() error {
 	}
 	defer db.Close()
 	ur := dbb.NewUserRepository(db)
+	userRoleRepository := dbb.NewUserRoleRepository(db)
 	userService := services.NewUserService(ur)
 	userController := controllers.NewUserController(userService)
-	userRouter := router.NewUserRouter(userController)
-	roleRepo:=dbb.NewRoleRepository(db)
-	roleService:=services.NewRoleService(roleRepo)
+	userRouter := router.NewUserRouter(userController, userRoleRepository)
+	roleRepo := dbb.NewRoleRepository(db)
+	roleService := services.NewRoleService(roleRepo, userRoleRepository)
 	roleController := controllers.NewRoleController(roleService)
-	roleRouter:=router.NewRoleRouter(roleController)
+	roleRouter := router.NewRoleRouter(roleController, userRoleRepository)
 	server := &http.Server{
 		Addr:         app.Config.Addr,
-		Handler:      router.SetUpRouter(userRouter,roleRouter),
+		Handler:      router.SetUpRouter(userRouter, roleRouter),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
